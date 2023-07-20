@@ -31,6 +31,19 @@ gen.run: gen.clean gen.api gen.openapi gen.gateway gen.registry gen.monitor gen.
 # ==============================================================================
 # Generator
 
+.PHONY: gen.api.debug 
+gen.api.debug:
+	@$(DOCKER) run --rm \
+		-v $(ROOT_DIR):/go/src/$(ROOT_PACKAGE) \
+		-e EXT_PB_APIS=$(EXT_PB_APIS)\
+	 	$(REGISTRY_PREFIX)/code-generator:$(CODE_GENERATOR_VERSION) \
+	 	/root/code.sh \
+	 	all \
+	 	$(ROOT_PACKAGE)/api/client \
+	 	$(ROOT_PACKAGE)/api \
+	 	$(ROOT_PACKAGE)/api \
+		"chart:v1"
+
 .PHONY: gen.api
 gen.api:
 	@$(DOCKER) run --rm \

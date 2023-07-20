@@ -59,6 +59,13 @@ export USAGE_OPTIONS
 # ==============================================================================
 # Targets
 
+.PHONY: debug
+debug:
+#	@$(MAKE) gen.api.debug
+#	@$(MAKE) gen.openapi
+	make build BINS=tke-chart-controller
+
+
 ## gen: Generate codes for API definitions.
 .PHONY: gen
 gen:

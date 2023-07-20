@@ -1,0 +1,24 @@
+platformAPIClientConfig: conf/tke-platform-config.yaml
+applicationAPIClientConfig: conf/tke-application-config.yaml
+registry:
+  prefix: registry.tke.com/library
+  ip: 10.20.9.23
+audit:
+  address: ""
+feature:
+  skipConditions: []
+docker:
+  extraArgs: {}
+kubelet:
+  extraArgs: {}
+apiServer:
+  extraArgs: {}
+controllerManager:
+  extraArgs: {}
+scheduler:
+  extraArgs: {}
+authzWebhook:
+  endpoint: https://10.20.9.23:31138/auth/authz
+business:
+  enabled: true
+supportOSList: []
