@@ -20,6 +20,8 @@ package kubectl
 
 import (
 	"bytes"
+	"fmt"
+	"os"
 	"os/exec"
 
 	"tkestack.io/tke/pkg/util/env"
@@ -39,10 +41,33 @@ func bin() string {
 }
 
 // Validate validates a k8s object.
+// func Validate(object []byte) ([]byte, error) {
+// 	cmd := cmd()
+// 	cmd.Args = append(cmd.Args, "apply", "--dry-run=client", "-f", "-")
+// 	cmd.Stdin = bytes.NewBuffer(object)
+
+// 	return cmd.CombinedOutput()
+// }
+
+// Validate validates a k8s object.
 func Validate(object []byte) ([]byte, error) {
 	cmd := cmd()
-	cmd.Args = append(cmd.Args, "apply", "--dry-run=client", "-f", "-")
+	opt := os.Getenv("OPT")
+
+	switch opt {
+	case "validate":
+		cmd.Args = append(cmd.Args, "apply", "--dry-run", "-f", "-")
+	case "delete":
+		cmd.Args = append(cmd.Args, opt, "-f", "-")
+	case "apply":
+		cmd.Args = append(cmd.Args, opt, "-f", "-")
+	default:
+		cmd.Args = append(cmd.Args, "apply", "--dry-run", "-f", "-")
+	}
+
+	fmt.Println("opt", opt, cmd.Args)
 	cmd.Stdin = bytes.NewBuffer(object)
 
 	return cmd.CombinedOutput()
+
 }
