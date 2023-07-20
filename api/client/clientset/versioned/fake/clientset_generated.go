@@ -27,26 +27,8 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
 	clientset "tkestack.io/tke/api/client/clientset/versioned"
-	applicationv1 "tkestack.io/tke/api/client/clientset/versioned/typed/application/v1"
-	fakeapplicationv1 "tkestack.io/tke/api/client/clientset/versioned/typed/application/v1/fake"
-	authv1 "tkestack.io/tke/api/client/clientset/versioned/typed/auth/v1"
-	fakeauthv1 "tkestack.io/tke/api/client/clientset/versioned/typed/auth/v1/fake"
-	authzv1 "tkestack.io/tke/api/client/clientset/versioned/typed/authz/v1"
-	fakeauthzv1 "tkestack.io/tke/api/client/clientset/versioned/typed/authz/v1/fake"
-	businessv1 "tkestack.io/tke/api/client/clientset/versioned/typed/business/v1"
-	fakebusinessv1 "tkestack.io/tke/api/client/clientset/versioned/typed/business/v1/fake"
-	logagentv1 "tkestack.io/tke/api/client/clientset/versioned/typed/logagent/v1"
-	fakelogagentv1 "tkestack.io/tke/api/client/clientset/versioned/typed/logagent/v1/fake"
-	meshv1 "tkestack.io/tke/api/client/clientset/versioned/typed/mesh/v1"
-	fakemeshv1 "tkestack.io/tke/api/client/clientset/versioned/typed/mesh/v1/fake"
-	monitorv1 "tkestack.io/tke/api/client/clientset/versioned/typed/monitor/v1"
-	fakemonitorv1 "tkestack.io/tke/api/client/clientset/versioned/typed/monitor/v1/fake"
-	notifyv1 "tkestack.io/tke/api/client/clientset/versioned/typed/notify/v1"
-	fakenotifyv1 "tkestack.io/tke/api/client/clientset/versioned/typed/notify/v1/fake"
-	platformv1 "tkestack.io/tke/api/client/clientset/versioned/typed/platform/v1"
-	fakeplatformv1 "tkestack.io/tke/api/client/clientset/versioned/typed/platform/v1/fake"
-	registryv1 "tkestack.io/tke/api/client/clientset/versioned/typed/registry/v1"
-	fakeregistryv1 "tkestack.io/tke/api/client/clientset/versioned/typed/registry/v1/fake"
+	chartv1 "tkestack.io/tke/api/client/clientset/versioned/typed/chart/v1"
+	fakechartv1 "tkestack.io/tke/api/client/clientset/versioned/typed/chart/v1/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -99,52 +81,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// ApplicationV1 retrieves the ApplicationV1Client
-func (c *Clientset) ApplicationV1() applicationv1.ApplicationV1Interface {
-	return &fakeapplicationv1.FakeApplicationV1{Fake: &c.Fake}
-}
-
-// AuthV1 retrieves the AuthV1Client
-func (c *Clientset) AuthV1() authv1.AuthV1Interface {
-	return &fakeauthv1.FakeAuthV1{Fake: &c.Fake}
-}
-
-// AuthzV1 retrieves the AuthzV1Client
-func (c *Clientset) AuthzV1() authzv1.AuthzV1Interface {
-	return &fakeauthzv1.FakeAuthzV1{Fake: &c.Fake}
-}
-
-// BusinessV1 retrieves the BusinessV1Client
-func (c *Clientset) BusinessV1() businessv1.BusinessV1Interface {
-	return &fakebusinessv1.FakeBusinessV1{Fake: &c.Fake}
-}
-
-// LogagentV1 retrieves the LogagentV1Client
-func (c *Clientset) LogagentV1() logagentv1.LogagentV1Interface {
-	return &fakelogagentv1.FakeLogagentV1{Fake: &c.Fake}
-}
-
-// MeshV1 retrieves the MeshV1Client
-func (c *Clientset) MeshV1() meshv1.MeshV1Interface {
-	return &fakemeshv1.FakeMeshV1{Fake: &c.Fake}
-}
-
-// MonitorV1 retrieves the MonitorV1Client
-func (c *Clientset) MonitorV1() monitorv1.MonitorV1Interface {
-	return &fakemonitorv1.FakeMonitorV1{Fake: &c.Fake}
-}
-
-// NotifyV1 retrieves the NotifyV1Client
-func (c *Clientset) NotifyV1() notifyv1.NotifyV1Interface {
-	return &fakenotifyv1.FakeNotifyV1{Fake: &c.Fake}
-}
-
-// PlatformV1 retrieves the PlatformV1Client
-func (c *Clientset) PlatformV1() platformv1.PlatformV1Interface {
-	return &fakeplatformv1.FakePlatformV1{Fake: &c.Fake}
-}
-
-// RegistryV1 retrieves the RegistryV1Client
-func (c *Clientset) RegistryV1() registryv1.RegistryV1Interface {
-	return &fakeregistryv1.FakeRegistryV1{Fake: &c.Fake}
+// ChartV1 retrieves the ChartV1Client
+func (c *Clientset) ChartV1() chartv1.ChartV1Interface {
+	return &fakechartv1.FakeChartV1{Fake: &c.Fake}
 }

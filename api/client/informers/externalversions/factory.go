@@ -41,6 +41,7 @@ import (
 	notify "tkestack.io/tke/api/client/informers/externalversions/notify"
 	platform "tkestack.io/tke/api/client/informers/externalversions/platform"
 	registry "tkestack.io/tke/api/client/informers/externalversions/registry"
+	chart "tkestack.io/tke/api/client/informers/externalversions/chart"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.
@@ -193,8 +194,13 @@ type SharedInformerFactory interface {
 	Notify() notify.Interface
 	Platform() platform.Interface
 	Registry() registry.Interface
+	Chart() chart.Interface
 }
 
+
+func (f *sharedInformerFactory) Chart() chart.Interface {
+	return chart.New(f, f.namespace, f.tweakListOptions)
+}
 func (f *sharedInformerFactory) Application() application.Interface {
 	return application.New(f, f.namespace, f.tweakListOptions)
 }

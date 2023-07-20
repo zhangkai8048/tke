@@ -36,6 +36,7 @@ import (
 	notifyv1 "tkestack.io/tke/api/client/clientset/versioned/typed/notify/v1"
 	platformv1 "tkestack.io/tke/api/client/clientset/versioned/typed/platform/v1"
 	registryv1 "tkestack.io/tke/api/client/clientset/versioned/typed/registry/v1"
+	chartv1 "tkestack.io/tke/api/client/clientset/versioned/typed/chart/v1"
 )
 
 type Interface interface {
@@ -50,6 +51,7 @@ type Interface interface {
 	NotifyV1() notifyv1.NotifyV1Interface
 	PlatformV1() platformv1.PlatformV1Interface
 	RegistryV1() registryv1.RegistryV1Interface
+	ChartV1() chartv1.ChartV1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
@@ -66,7 +68,14 @@ type Clientset struct {
 	notifyV1      *notifyv1.NotifyV1Client
 	platformV1    *platformv1.PlatformV1Client
 	registryV1    *registryv1.RegistryV1Client
+	chartV1    *chartv1.ChartV1Client
 }
+
+// ApplicationV1 retrieves the ApplicationV1Client
+func (c *Clientset) ChartV1() chartv1.ChartV1Interface {
+	return c.chartV1
+}
+
 
 // ApplicationV1 retrieves the ApplicationV1Client
 func (c *Clientset) ApplicationV1() applicationv1.ApplicationV1Interface {

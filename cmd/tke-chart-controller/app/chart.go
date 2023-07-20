@@ -19,7 +19,6 @@
 package app
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -30,7 +29,7 @@ import (
 	"tkestack.io/tke/pkg/chart/controller/chart"
 	"tkestack.io/tke/pkg/chart/controller/chartgroup"
 	"tkestack.io/tke/pkg/chart/controller/identityprovider"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
+	helm "tkestack.io/tke/pkg/registry/harbor/helmClient"
 )
 
 const (
@@ -44,32 +43,13 @@ const (
 	concurrentIdentityProviderSyncs = 10
 )
 
-func newHelmClient(ctx ControllerContext) *helm.APIClient {
-	headers := make(map[string]string)
-	// headers["Authorization"] = "Basic " + base64.StdEncoding.EncodeToString([]byte(
-	// 	ctx.RegistryConfig.Security.AdminUsername+":"+ctx.RegistryConfig.Security.AdminPassword),
-	// )
-	//tr, _ := transport.NewOneWayTLSTransport(ctx.RegistryConfig.HarborCAFile, true)
-	helmCfg := &helm.Configuration{
-		BasePath:      fmt.Sprintf("https://%s/api", "demo.com"),
-		DefaultHeader: headers,
-		UserAgent:     "Swagger-Codegen/1.0.0/go",
-		// HTTPClient: &http.Client{
-		// 	Transport: tr,
-		// },
-	}
-	return helm.NewAPIClient(helmCfg)
-}
-
 func startChartGroupController(ctx ControllerContext) (http.Handler, bool, error) {
 	if !ctx.AvailableResources[schema.GroupVersionResource{Group: registryv1.GroupName, Version: "v1", Resource: "chartgroups"}] {
 		return nil, false, nil
 	}
 
 	var helmClient *helm.APIClient
-
-	helmClient = newHelmClient(ctx)
-
+    ctx.InformerFactory.Registry()
 	ctrl := chartgroup.NewController(
 		ctx.BusinessClient,
 		ctx.ClientBuilder.ClientOrDie("chartgroup-controller"),
@@ -102,8 +82,6 @@ func startChartController(ctx ControllerContext) (http.Handler, bool, error) {
 
 	var helmClient *helm.APIClient
 	var multiTenantServer *multitenant.MultiTenantServer
-
-	helmClient = newHelmClient(ctx)
 
 	ctrl := chart.NewController(
 		ctx.ClientBuilder.ClientOrDie("chart-controller"),

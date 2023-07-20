@@ -58,8 +58,8 @@ type Controller struct {
 
 	stopCh                       <-chan struct{}
 	registryDefaultConfiguration registrycontrollerconfig.RegistryDefaultConfiguration
-	chartconfig                  *chartconfigv1.chartconfiguration
-	corednsClient                *util.CoreDNS
+	//	chartconfig                  *chartconfigv1.chartconfiguration
+	corednsClient *util.CoreDNS
 }
 
 func NewController(authClient authversionedclient.AuthV1Interface,
@@ -187,7 +187,7 @@ func (c *Controller) syncItem(key string) error {
 		log.Info("Init default registry setting for identityProvider", log.Any("name", idp.Name))
 		err = c.processUpdateItem(context.Background(), idp, key)
 		if c.corednsClient != nil {
-			item := fmt.Sprintf("%s.%s", idp.Name, c.chartconfig.DomainSuffix)
+			item := fmt.Sprintf("%s.%s", idp.Name, "demo.com")
 			c.corednsClient.ParseCoreFile(item)
 		}
 	}
@@ -204,7 +204,7 @@ func (c *Controller) processUpdateItem(ctx context.Context, idp *authv1.Identity
 		return nil
 	}
 	for _, cg := range c.registryDefaultConfiguration.DefaultSystemChartGroups {
-		cgList, err := c.client.chartv1().ChartGroups().List(ctx, metav1.ListOptions{
+		cgList, err := c.client.ChartV1().ChartGroups().List(ctx, metav1.ListOptions{
 			FieldSelector: fmt.Sprintf("spec.tenantID=%s,spec.name=%s", idp.Spec.Name, cg),
 		})
 		if err != nil {
@@ -216,7 +216,7 @@ func (c *Controller) processUpdateItem(ctx context.Context, idp *authv1.Identity
 			continue
 		}
 		if len(cgList.Items) == 0 {
-			_, err = c.client.chartv1().ChartGroups().Create(ctx, &chartv1.ChartGroup{
+			_, err = c.client.ChartV1().ChartGroups().Create(ctx, &chartv1.ChartGroup{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: cg,
 				},
@@ -225,7 +225,7 @@ func (c *Controller) processUpdateItem(ctx context.Context, idp *authv1.Identity
 					DisplayName: cg,
 					TenantID:    idp.Spec.Name,
 					Visibility:  chartv1.VisibilityPublic,
-					Type:        chartv1.RepoTypeSystem,
+					//					Type:        chartv1.RepoTypeSystem,
 				}}, metav1.CreateOptions{})
 			if err != nil {
 				log.Warn("identityprovider controller - addChartGroup failed",

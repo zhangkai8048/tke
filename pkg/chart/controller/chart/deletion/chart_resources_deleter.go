@@ -31,10 +31,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
-	v1clientset "tkestack.io/tke/api/client/clientset/versioned/typed/chart/v1"
 	chartv1 "tkestack.io/tke/api/chart/v1"
-	harborHandler "tkestack.io/tke/pkg/chart/harbor/handler"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
+	v1clientset "tkestack.io/tke/api/client/clientset/versioned/typed/chart/v1"
+	harborHandler "tkestack.io/tke/pkg/registry/harbor/handler"
+	helm "tkestack.io/tke/pkg/registry/harbor/helmClient"
 	"tkestack.io/tke/pkg/util/log"
 )
 
@@ -80,10 +80,11 @@ type chartResourcesDeleter struct {
 
 // Delete deletes all resources in the given chart.
 // Before deleting resources:
-// * It ensures that deletion timestamp is set on the
-//   chart (does nothing if deletion timestamp is missing).
-// * Verifies that the chart is in the "terminating" phase
-//   (updates the chart phase if it is not yet marked terminating)
+//   - It ensures that deletion timestamp is set on the
+//     chart (does nothing if deletion timestamp is missing).
+//   - Verifies that the chart is in the "terminating" phase
+//     (updates the chart phase if it is not yet marked terminating)
+//
 // After deleting the resources:
 // * It removes finalizer token from the given chart.
 // * Deletes the chart if deleteChartWhenDone is true.

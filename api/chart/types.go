@@ -89,28 +89,7 @@ type ChartGroupSpec struct {
 	Creator string
 }
 
-// ChartConfiguration contains the configuration for the ChartGroup
-type ChartConfiguration struct {
-	Security Security
-	// +optional
-	DefaultTenant string
-	// +optional
-	DomainSuffix  string
-	HarborEnabled bool
-	HarborCAFile  string
-}
 
-type Security struct {
-	TokenPrivateKeyFile string
-	TokenPublicKeyFile  string
-	// +optional
-	TokenExpiredHours *int64
-	HTTPSecret        string
-	AdminUsername     string
-	AdminPassword     string
-	// +optional
-	EnableAnonymous *bool
-}
 
 // ChartGroupImport is a description of an import chart group.
 type ChartGroupImport struct {

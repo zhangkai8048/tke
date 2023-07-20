@@ -26,32 +26,14 @@ import (
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	applicationinternalversion "tkestack.io/tke/api/application"
-	authinternalversion "tkestack.io/tke/api/auth"
-	authzinternalversion "tkestack.io/tke/api/authz"
-	businessinternalversion "tkestack.io/tke/api/business"
-	logagentinternalversion "tkestack.io/tke/api/logagent"
-	meshinternalversion "tkestack.io/tke/api/mesh"
-	monitorinternalversion "tkestack.io/tke/api/monitor"
-	notifyinternalversion "tkestack.io/tke/api/notify"
-	platforminternalversion "tkestack.io/tke/api/platform"
-	registryinternalversion "tkestack.io/tke/api/registry"
+	chartinternalversion "tkestack.io/tke/api/chart"
 )
 
 var scheme = runtime.NewScheme()
 var codecs = serializer.NewCodecFactory(scheme)
 
 var localSchemeBuilder = runtime.SchemeBuilder{
-	applicationinternalversion.AddToScheme,
-	authinternalversion.AddToScheme,
-	authzinternalversion.AddToScheme,
-	businessinternalversion.AddToScheme,
-	logagentinternalversion.AddToScheme,
-	meshinternalversion.AddToScheme,
-	monitorinternalversion.AddToScheme,
-	notifyinternalversion.AddToScheme,
-	platforminternalversion.AddToScheme,
-	registryinternalversion.AddToScheme,
+	chartinternalversion.AddToScheme,
 }
 
 // AddToScheme adds all types of this clientset into the given scheme. This allows composition

@@ -19,10 +19,6 @@
 package rest
 
 import (
-	"encoding/base64"
-	"fmt"
-	"net/http"
-
 	"github.com/docker/libtrust"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/registry/generic"
@@ -31,20 +27,12 @@ import (
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
 	restclient "k8s.io/client-go/rest"
 	v1 "tkestack.io/tke/api/chart/v1"
-	registryinternalclient "tkestack.io/tke/api/client/clientset/internalversion/typed/registry/internalversion"
 	authversionedclient "tkestack.io/tke/api/client/clientset/versioned/typed/auth/v1"
 	businessversionedclient "tkestack.io/tke/api/client/clientset/versioned/typed/business/v1"
 	platformversionedclient "tkestack.io/tke/api/client/clientset/versioned/typed/platform/v1"
 	"tkestack.io/tke/api/registry"
 	"tkestack.io/tke/pkg/apiserver/storage"
-	harbor "tkestack.io/tke/pkg/chart/harbor/client"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
-	chartstorage "tkestack.io/tke/pkg/chart/registry/chart/storage"
-	chartgroupstorage "tkestack.io/tke/pkg/chart/registry/chartgroup/storage"
 	configmapstorage "tkestack.io/tke/pkg/chart/registry/configmap/storage"
-	namespacestorage "tkestack.io/tke/pkg/chart/registry/namespace/storage"
-	repositorystorage "tkestack.io/tke/pkg/chart/registry/repository/storage"
-	"tkestack.io/tke/pkg/util/transport"
 )
 
 // StorageProvider is a REST type for core resources storage that implement
@@ -59,7 +47,6 @@ type StorageProvider struct {
 	AuthClient           authversionedclient.AuthV1Interface
 	BusinessClient       businessversionedclient.BusinessV1Interface
 	PlatformClient       platformversionedclient.PlatformV1Interface
-	chartconfig          *chartconfig.chartconfiguration
 	Authorizer           authorizer.Authorizer
 	TokenPrivateKey      libtrust.PrivateKey
 }
@@ -82,36 +69,36 @@ func (*StorageProvider) GroupName() string {
 }
 
 func (s *StorageProvider) v1Storage(apiResourceConfigSource serverstorage.APIResourceConfigSource, restOptionsGetter generic.RESTOptionsGetter, loopbackClientConfig *restclient.Config) map[string]rest.Storage {
-	registryClient := registryinternalclient.NewForConfigOrDie(loopbackClientConfig)
+	// registryClient := registryinternalclient.NewForConfigOrDie(loopbackClientConfig)
 
-	var harborClient *harbor.APIClient = nil
-	var helmClient *helm.APIClient
+	// var harborClient *harbor.APIClient = nil
+	//var helmClient *helm.APIClient
 
-	if s.chartconfig.HarborEnabled {
-		tr, _ := transport.NewOneWayTLSTransport(s.chartconfig.HarborCAFile, true)
-		headers := make(map[string]string)
-		headers["Authorization"] = "Basic " + base64.StdEncoding.EncodeToString([]byte(
-			s.chartconfig.Security.AdminUsername+":"+s.chartconfig.Security.AdminPassword),
-		)
-		harborCfg := &harbor.Configuration{
-			BasePath:      fmt.Sprintf("https://%s/api/v2.0", s.chartconfig.DomainSuffix),
-			DefaultHeader: headers,
-			UserAgent:     "Swagger-Codegen/1.0.0/go",
-			HTTPClient: &http.Client{
-				Transport: tr,
-			},
-		}
-		helmCfg := &helm.Configuration{
-			BasePath:      fmt.Sprintf("https://%s/api", s.chartconfig.DomainSuffix),
-			DefaultHeader: headers,
-			UserAgent:     "Swagger-Codegen/1.0.0/go",
-			HTTPClient: &http.Client{
-				Transport: tr,
-			},
-		}
-		harborClient = harbor.NewAPIClient(harborCfg)
-		helmClient = helm.NewAPIClient(helmCfg)
-	}
+	// if s.chartconfig.HarborEnabled {
+	// 	tr, _ := transport.NewOneWayTLSTransport(s.chartconfig.HarborCAFile, true)
+	// 	headers := make(map[string]string)
+	// 	headers["Authorization"] = "Basic " + base64.StdEncoding.EncodeToString([]byte(
+	// 		s.chartconfig.Security.AdminUsername+":"+s.chartconfig.Security.AdminPassword),
+	// 	)
+	// 	harborCfg := &harbor.Configuration{
+	// 		BasePath:      fmt.Sprintf("https://%s/api/v2.0", s.chartconfig.DomainSuffix),
+	// 		DefaultHeader: headers,
+	// 		UserAgent:     "Swagger-Codegen/1.0.0/go",
+	// 		HTTPClient: &http.Client{
+	// 			Transport: tr,
+	// 		},
+	// 	}
+	// 	helmCfg := &helm.Configuration{
+	// 		BasePath:      fmt.Sprintf("https://%s/api", s.chartconfig.DomainSuffix),
+	// 		DefaultHeader: headers,
+	// 		UserAgent:     "Swagger-Codegen/1.0.0/go",
+	// 		HTTPClient: &http.Client{
+	// 			Transport: tr,
+	// 		},
+	// 	}
+	// 	harborClient = harbor.NewAPIClient(harborCfg)
+	// 	helmClient = helm.NewAPIClient(helmCfg)
+	// }
 
 	storageMap := make(map[string]rest.Storage)
 	{
@@ -119,35 +106,35 @@ func (s *StorageProvider) v1Storage(apiResourceConfigSource serverstorage.APIRes
 		configMapREST := configmapstorage.NewStorage(restOptionsGetter)
 		storageMap["configmaps"] = configMapREST.ConfigMap
 
-		namespaceREST := namespacestorage.NewStorage(restOptionsGetter, registryClient, s.PrivilegedUsername, harborClient)
-		storageMap["namespaces"] = namespaceREST.Namespace
-		storageMap["namespaces/status"] = namespaceREST.Status
+		// namespaceREST := namespacestorage.NewStorage(restOptionsGetter, registryClient, s.PrivilegedUsername, harborClient)
+		// storageMap["namespaces"] = namespaceREST.Namespace
+		// storageMap["namespaces/status"] = namespaceREST.Status
 
-		repositoryREST := repositorystorage.NewStorage(restOptionsGetter, registryClient, s.PrivilegedUsername, s.LoopbackClientConfig.Host, harborClient, s.TokenPrivateKey)
-		storageMap["repositories"] = repositoryREST.Repository
-		storageMap["repositories/status"] = repositoryREST.Status
+		// repositoryREST := repositorystorage.NewStorage(restOptionsGetter, registryClient, s.PrivilegedUsername, s.LoopbackClientConfig.Host, harborClient, s.TokenPrivateKey)
+		// storageMap["repositories"] = repositoryREST.Repository
+		// storageMap["repositories/status"] = repositoryREST.Status
 
-		chartGroupRESTStorage := chartgroupstorage.NewStorage(restOptionsGetter, registryClient, s.AuthClient, s.BusinessClient, s.PrivilegedUsername)
-		chartGroupREST := chartgroupstorage.NewREST(chartGroupRESTStorage.ChartGroup, registryClient, s.AuthClient, harborClient, helmClient)
-		repoUpdateREST := chartgroupstorage.NewRepoUpdateREST(chartGroupRESTStorage.ChartGroup, registryClient,
-			s.Authorizer)
-		storageMap["chartgroups"] = chartGroupREST
-		storageMap["chartgroups/status"] = chartGroupRESTStorage.Status
-		storageMap["chartgroups/finalize"] = chartGroupRESTStorage.Finalize
-		storageMap["chartgroups/repoupdating"] = repoUpdateREST
+		// chartGroupRESTStorage := chartgroupstorage.NewStorage(restOptionsGetter, registryClient, s.AuthClient, s.BusinessClient, s.PrivilegedUsername)
+		// chartGroupREST := chartgroupstorage.NewREST(chartGroupRESTStorage.ChartGroup, registryClient, s.AuthClient, harborClient, helmClient)
+		// repoUpdateREST := chartgroupstorage.NewRepoUpdateREST(chartGroupRESTStorage.ChartGroup, registryClient,
+		// 	s.Authorizer)
+		// // storageMap["chartgroups"] = chartGroupREST
+		// // storageMap["chartgroups/status"] = chartGroupRESTStorage.Status
+		// // storageMap["chartgroups/finalize"] = chartGroupRESTStorage.Finalize
+		// // storageMap["chartgroups/repoupdating"] = repoUpdateREST
 
-		chartREST := chartstorage.NewStorage(restOptionsGetter, registryClient, s.AuthClient, s.BusinessClient, s.PrivilegedUsername)
-		chartVersionREST := chartstorage.NewVersionREST(chartREST.Chart, s.PlatformClient, registryClient, s.chartconfig,
-			s.ExternalScheme,
-			s.ExternalHost,
-			s.ExternalPort,
-			s.ExternalCAFile,
-			s.Authorizer,
-			helmClient)
-		storageMap["charts"] = chartREST.Chart
-		storageMap["charts/status"] = chartREST.Status
-		storageMap["charts/finalize"] = chartREST.Finalize
-		storageMap["charts/version"] = chartVersionREST
+		// chartREST := chartstorage.NewStorage(restOptionsGetter, registryClient, s.AuthClient, s.BusinessClient, s.PrivilegedUsername)
+		// chartVersionREST := chartstorage.NewVersionREST(chartREST.Chart, s.PlatformClient, registryClient,
+		// 	s.ExternalScheme,
+		// 	s.ExternalHost,
+		// 	s.ExternalPort,
+		// 	s.ExternalCAFile,
+		// 	s.Authorizer,
+		// 	helmClient)
+		// storageMap["charts"] = chartREST.Chart
+		// storageMap["charts/status"] = chartREST.Status
+		// storageMap["charts/finalize"] = chartREST.Finalize
+		// storageMap["charts/version"] = chartVersionREST
 	}
 
 	return storageMap

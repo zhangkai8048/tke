@@ -84,8 +84,7 @@ func (c *Controller) watchChartHealth(ctx context.Context, key string) func() (b
 			c.health.Del(key)
 			return true, nil
 		}
-
-		chart, err := c.client.chartv1().Charts(chartGroupName).Get(ctx, chartName, metav1.GetOptions{})
+		chart, err := c.client.ChartV1().Charts(chartGroupName).Get(ctx, chartName, metav1.GetOptions{})
 		if err != nil && errors.IsNotFound(err) {
 			log.Error("Chart not found, to exit the health check loop",
 				log.String("chartName", chartName))

@@ -217,29 +217,6 @@ type ChartVersion struct {
 	Icon        string      `json:"icon,omitempty" protobuf:"bytes,6,opt,name=icon"`
 }
 
-// ChartConfiguration contains the configuration for the ChartGroup
-type ChartConfiguration struct {
-	Security Security `protobuf:"bytes,1,opt,name=security"`
-	// +optional
-	DefaultTenant string `protobuf:"bytes,2,opt,name=defaultTenant"`
-	// +optional
-	DomainSuffix  string `protobuf:"bytes,3,opt,name=domainSuffix"`
-	HarborEnabled bool   `protobuf:"varint,4,opt,name=harborEnabled"`
-	HarborCAFile  string `protobuf:"bytes,5,opt,name=harborCAFile"`
-}
-
-type Security struct {
-	TokenPrivateKeyFile string `protobuf:"bytes,1,opt,name=tokenPrivateKeyFile"`
-	TokenPublicKeyFile  string `protobuf:"bytes,2,opt,name=tokenPublicKeyFile"`
-	// +optional
-	TokenExpiredHours *int64 `protobuf:"varint,3,opt,name=tokenExpiredHours"`
-	HTTPSecret        string `protobuf:"bytes,4,opt,name=hTTPSecret"`
-	AdminUsername     string `protobuf:"bytes,5,opt,name=adminUsername"`
-	AdminPassword     string `protobuf:"bytes,6,opt,name=adminPassword"`
-	// +optional
-	EnableAnonymous *bool `protobuf:"varint,7,opt,name=enableAnonymous"`
-}
-
 // Visibility defines the visible properties of the repo or namespace.
 type Visibility string
 

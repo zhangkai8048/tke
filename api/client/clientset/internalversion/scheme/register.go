@@ -25,16 +25,7 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	serializer "k8s.io/apimachinery/pkg/runtime/serializer"
-	application "tkestack.io/tke/api/application/install"
-	auth "tkestack.io/tke/api/auth/install"
-	authz "tkestack.io/tke/api/authz/install"
-	business "tkestack.io/tke/api/business/install"
-	logagent "tkestack.io/tke/api/logagent/install"
-	mesh "tkestack.io/tke/api/mesh/install"
-	monitor "tkestack.io/tke/api/monitor/install"
-	notify "tkestack.io/tke/api/notify/install"
-	platform "tkestack.io/tke/api/platform/install"
-	registry "tkestack.io/tke/api/registry/install"
+	chart "tkestack.io/tke/api/chart/install"
 )
 
 var Scheme = runtime.NewScheme()
@@ -48,14 +39,5 @@ func init() {
 
 // Install registers the API group and adds types to a scheme
 func Install(scheme *runtime.Scheme) {
-	application.Install(scheme)
-	auth.Install(scheme)
-	authz.Install(scheme)
-	business.Install(scheme)
-	logagent.Install(scheme)
-	mesh.Install(scheme)
-	monitor.Install(scheme)
-	notify.Install(scheme)
-	platform.Install(scheme)
-	registry.Install(scheme)
+	chart.Install(scheme)
 }

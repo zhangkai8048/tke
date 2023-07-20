@@ -38,14 +38,6 @@ func (Chart) SwaggerDoc() map[string]string {
 	return map_Chart
 }
 
-var map_ChartConfiguration = map[string]string{
-	"": "ChartConfiguration contains the configuration for the ChartGroup",
-}
-
-func (ChartConfiguration) SwaggerDoc() map[string]string {
-	return map_ChartConfiguration
-}
-
 var map_ChartGroup = map[string]string{
 	"":     "ChartGroup is a chart container in chartmuseum registry.",
 	"spec": "Spec defines the desired identities of chart group in this set.",

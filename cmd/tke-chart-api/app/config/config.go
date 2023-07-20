@@ -43,9 +43,7 @@ import (
 	"tkestack.io/tke/pkg/apiserver/storage"
 	"tkestack.io/tke/pkg/apiserver/util"
 	"tkestack.io/tke/pkg/chart/apiserver"
-	"tkestack.io/tke/pkg/chart/chartmuseum"
 	controllerconfig "tkestack.io/tke/pkg/controller/config"
-	"tkestack.io/tke/pkg/registry/distribution"
 )
 
 const (
@@ -77,13 +75,10 @@ func CreateConfigFromOptions(serverName string, opts *options.Options) (*Config,
 
 	genericAPIServerConfig := genericapiserver.NewConfig(registry.Codecs)
 	var ignoredAuthPathPrefixes []string
-	ignoredAuthPathPrefixes = append(ignoredAuthPathPrefixes, distribution.IgnoredAuthPathPrefixes()...)
-	ignoredAuthPathPrefixes = append(ignoredAuthPathPrefixes, chartmuseum.IgnoredAuthPathPrefixes()...)
 	genericAPIServerConfig.BuildHandlerChainFunc = handler.BuildHandlerChain(ignoredAuthPathPrefixes, nil, nil)
 	// long running function for distribution and chartmuseum path.
 	genericAPIServerConfig.LongRunningFunc = filter.LongRunningRequestCheck(sets.NewString("watch"), sets.NewString(), ignoredAuthPathPrefixes)
 	// increase default max post payload for distribution and chartmuseum.
-	genericAPIServerConfig.MaxRequestBodyBytes = chartmuseum.MaxUploadSize
 	genericAPIServerConfig.MergedResourceConfig = apiserver.DefaultAPIResourceConfigSource()
 	genericAPIServerConfig.EnableIndex = false
 	genericAPIServerConfig.EnableProfiling = false

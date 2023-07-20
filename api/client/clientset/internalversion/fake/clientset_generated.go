@@ -27,26 +27,8 @@ import (
 	fakediscovery "k8s.io/client-go/discovery/fake"
 	"k8s.io/client-go/testing"
 	clientset "tkestack.io/tke/api/client/clientset/internalversion"
-	applicationinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/application/internalversion"
-	fakeapplicationinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/application/internalversion/fake"
-	authinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/auth/internalversion"
-	fakeauthinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/auth/internalversion/fake"
-	authzinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/authz/internalversion"
-	fakeauthzinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/authz/internalversion/fake"
-	businessinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/business/internalversion"
-	fakebusinessinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/business/internalversion/fake"
-	logagentinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/logagent/internalversion"
-	fakelogagentinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/logagent/internalversion/fake"
-	meshinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/mesh/internalversion"
-	fakemeshinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/mesh/internalversion/fake"
-	monitorinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/monitor/internalversion"
-	fakemonitorinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/monitor/internalversion/fake"
-	notifyinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/notify/internalversion"
-	fakenotifyinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/notify/internalversion/fake"
-	platforminternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/platform/internalversion"
-	fakeplatforminternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/platform/internalversion/fake"
-	registryinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/registry/internalversion"
-	fakeregistryinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/registry/internalversion/fake"
+	chartinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/chart/internalversion"
+	fakechartinternalversion "tkestack.io/tke/api/client/clientset/internalversion/typed/chart/internalversion/fake"
 )
 
 // NewSimpleClientset returns a clientset that will respond with the provided objects.
@@ -99,52 +81,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// Application retrieves the ApplicationClient
-func (c *Clientset) Application() applicationinternalversion.ApplicationInterface {
-	return &fakeapplicationinternalversion.FakeApplication{Fake: &c.Fake}
-}
-
-// Auth retrieves the AuthClient
-func (c *Clientset) Auth() authinternalversion.AuthInterface {
-	return &fakeauthinternalversion.FakeAuth{Fake: &c.Fake}
-}
-
-// Authz retrieves the AuthzClient
-func (c *Clientset) Authz() authzinternalversion.AuthzInterface {
-	return &fakeauthzinternalversion.FakeAuthz{Fake: &c.Fake}
-}
-
-// Business retrieves the BusinessClient
-func (c *Clientset) Business() businessinternalversion.BusinessInterface {
-	return &fakebusinessinternalversion.FakeBusiness{Fake: &c.Fake}
-}
-
-// Logagent retrieves the LogagentClient
-func (c *Clientset) Logagent() logagentinternalversion.LogagentInterface {
-	return &fakelogagentinternalversion.FakeLogagent{Fake: &c.Fake}
-}
-
-// Mesh retrieves the MeshClient
-func (c *Clientset) Mesh() meshinternalversion.MeshInterface {
-	return &fakemeshinternalversion.FakeMesh{Fake: &c.Fake}
-}
-
-// Monitor retrieves the MonitorClient
-func (c *Clientset) Monitor() monitorinternalversion.MonitorInterface {
-	return &fakemonitorinternalversion.FakeMonitor{Fake: &c.Fake}
-}
-
-// Notify retrieves the NotifyClient
-func (c *Clientset) Notify() notifyinternalversion.NotifyInterface {
-	return &fakenotifyinternalversion.FakeNotify{Fake: &c.Fake}
-}
-
-// Platform retrieves the PlatformClient
-func (c *Clientset) Platform() platforminternalversion.PlatformInterface {
-	return &fakeplatforminternalversion.FakePlatform{Fake: &c.Fake}
-}
-
-// Registry retrieves the RegistryClient
-func (c *Clientset) Registry() registryinternalversion.RegistryInterface {
-	return &fakeregistryinternalversion.FakeRegistry{Fake: &c.Fake}
+// Chart retrieves the ChartClient
+func (c *Clientset) Chart() chartinternalversion.ChartInterface {
+	return &fakechartinternalversion.FakeChart{Fake: &c.Fake}
 }

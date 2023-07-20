@@ -30,7 +30,7 @@ import (
 	chartv1 "tkestack.io/tke/api/chart/v1"
 	businessversionedclient "tkestack.io/tke/api/client/clientset/versioned/typed/business/v1"
 	v1clientset "tkestack.io/tke/api/client/clientset/versioned/typed/chart/v1"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
+	helm "tkestack.io/tke/pkg/registry/harbor/helmClient"
 	"tkestack.io/tke/pkg/util/log"
 )
 

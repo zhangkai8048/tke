@@ -35,10 +35,10 @@ import (
 	"tkestack.io/tke/api/registry"
 	"tkestack.io/tke/pkg/apiserver/authentication"
 	authutil "tkestack.io/tke/pkg/auth/util"
-	harbor "tkestack.io/tke/pkg/chart/harbor/client"
-	harborHandler "tkestack.io/tke/pkg/chart/harbor/handler"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
 	chartgroupstrategy "tkestack.io/tke/pkg/chart/registry/chartgroup"
+	harbor "tkestack.io/tke/pkg/registry/harbor/client"
+	harborHandler "tkestack.io/tke/pkg/registry/harbor/handler"
+	helm "tkestack.io/tke/pkg/registry/harbor/helmClient"
 	genericutil "tkestack.io/tke/pkg/util"
 	"tkestack.io/tke/pkg/util/log"
 )

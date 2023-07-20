@@ -22,7 +22,6 @@ import (
 	"context"
 	"fmt"
 	"reflect"
-	"strings"
 	"time"
 
 	"helm.sh/chartmuseum/pkg/chartmuseum/server/multitenant"
@@ -38,10 +37,9 @@ import (
 	chartv1informer "tkestack.io/tke/api/client/informers/externalversions/chart/v1"
 	chartv1lister "tkestack.io/tke/api/client/listers/chart/v1"
 	"tkestack.io/tke/pkg/chart/controller/chart/deletion"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
 	controllerutil "tkestack.io/tke/pkg/controller"
+	helm "tkestack.io/tke/pkg/registry/harbor/helmClient"
 	"tkestack.io/tke/pkg/util/log"
-	"tkestack.io/tke/pkg/util/metrics"
 )
 
 const (
@@ -85,12 +83,12 @@ func NewController(
 		chartResourcesDeleter: deletion.NewChartResourcesDeleter(client.ChartV1(), multiTenantServer, finalizerToken, true, helmClient),
 	}
 
-	if client != nil &&
-		client.ChartV1().RESTClient() != nil &&
-		!reflect.ValueOf(client.chartv1().RESTClient()).IsNil() &&
-		client.ChartV1().RESTClient().GetRateLimiter() != nil {
-		_ = metrics.RegisterMetricAndTrackRateLimiterUsage("chart_controller", client.ChartV1().RESTClient().GetRateLimiter())
-	}
+	// if client != nil &&
+	// 	client.ChartV1().RESTClient() != nil &&
+	// 	!reflect.ValueOf(client.chartv1().RESTClient()).IsNil() &&
+	// 	client.ChartV1().RESTClient().GetRateLimiter() != nil {
+	// 	_ = metrics.RegisterMetricAndTrackRateLimiterUsage("chart_controller", client.ChartV1().RESTClient().GetRateLimiter())
+	// }
 
 	chartInformer.Informer().AddEventHandlerWithResyncPeriod(
 		cache.ResourceEventHandlerFuncs{
@@ -318,7 +316,7 @@ func (c *Controller) updateStatus(ctx context.Context, chart *chartv1.Chart, pre
 	newObj := chart.DeepCopy()
 	newObj.Status = *newStatus
 
-	updated, err := c.client.chartv1().Charts(newObj.Namespace).UpdateStatus(ctx, newObj, metav1.UpdateOptions{})
+	updated, err := c.client.ChartV1().Charts(newObj.Namespace).UpdateStatus(ctx, newObj, metav1.UpdateOptions{})
 	if err == nil {
 		return updated, nil
 	}
@@ -347,7 +345,7 @@ func (c *Controller) updateChartGroup(ctx context.Context, chart *chartv1.Chart)
 	}
 
 	rcg.Status.ChartCount = rcg.Status.ChartCount - 1
-	if _, err := c.client.chartv1().ChartGroups().UpdateStatus(ctx, rcg, metav1.UpdateOptions{}); err != nil {
+	if _, err := c.client.ChartV1().ChartGroups().UpdateStatus(ctx, rcg, metav1.UpdateOptions{}); err != nil {
 		log.Error("Failed to update chartgroup while chart deleted",
 			log.String("tenantID", chart.Spec.TenantID),
 			log.String("chartGroupName", chart.Spec.ChartGroupName),
@@ -370,32 +368,32 @@ func (c *Controller) needCompatibleUpgrade(ctx context.Context, chart *chartv1.C
 
 // If need to upgrade compatibly
 func (c *Controller) compatibleUpgrade(ctx context.Context, key string, cachedChart *cachedChart, chart *chartv1.Chart) error {
-	cg, err := c.findChartGroup(ctx, chart)
-	if err != nil {
-		return err
-	}
+	// cg, err := c.findChartGroup(ctx, chart)
+	// if err != nil {
+	// 	return err
+	// }
 
 	newObj := chart.DeepCopy()
-	switch cg.Spec.Type {
-	case chartv1.RepoType(strings.ToLower(string(chartv1.RepoTypePersonal))):
-		{
-			if cg.Spec.Visibility == chartv1.VisibilityPrivate {
-				newObj.Spec.Visibility = chartv1.VisibilityUser
-			}
-			break
-		}
-	case chartv1.RepoType(strings.ToLower(string(chartv1.RepoTypeProject))):
-		{
-			if cg.Spec.Visibility == chartv1.VisibilityPrivate {
-				newObj.Spec.Visibility = chartv1.VisibilityProject
-			}
-			break
-		}
-	default:
-		return nil
-	}
+	// switch cg.Spec.Type {
+	// case chartv1.RepoType(strings.ToLower(string(chartv1.RepoTypePersonal))):
+	// 	{
+	// 		if cg.Spec.Visibility == chartv1.VisibilityPrivate {
+	// 			newObj.Spec.Visibility = chartv1.VisibilityUser
+	// 		}
+	// 		break
+	// 	}
+	// case chartv1.RepoType(strings.ToLower(string(chartv1.RepoTypeProject))):
+	// 	{
+	// 		if cg.Spec.Visibility == chartv1.VisibilityPrivate {
+	// 			newObj.Spec.Visibility = chartv1.VisibilityProject
+	// 		}
+	// 		break
+	// 	}
+	// default:
+	// 	return nil
+	// }
 
-	updated, err := c.client.chartv1().Charts(newObj.Namespace).Update(ctx, newObj, metav1.UpdateOptions{})
+	updated, err := c.client.ChartV1().Charts(newObj.Namespace).Update(ctx, newObj, metav1.UpdateOptions{})
 	if errors.IsNotFound(err) {
 		log.Info("Not persisting upgrade to chart that no longer exists",
 			log.String("chartGroupName", chart.Spec.ChartGroupName),
@@ -411,7 +409,7 @@ func (c *Controller) compatibleUpgrade(ctx context.Context, key string, cachedCh
 }
 
 func (c *Controller) findChartGroup(ctx context.Context, chart *chartv1.Chart) (*chartv1.ChartGroup, error) {
-	chartGroupList, err := c.client.chartv1().ChartGroups().List(ctx, metav1.ListOptions{
+	chartGroupList, err := c.client.ChartV1().ChartGroups().List(ctx, metav1.ListOptions{
 		FieldSelector: fmt.Sprintf("spec.tenantID=%s,spec.name=%s", chart.Spec.TenantID, chart.Spec.ChartGroupName),
 	})
 	if err != nil {

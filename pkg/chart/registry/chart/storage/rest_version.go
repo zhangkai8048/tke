@@ -29,7 +29,6 @@ import (
 	"strings"
 	"time"
 
-	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	netutil "k8s.io/apimachinery/pkg/util/net"
@@ -41,15 +40,11 @@ import (
 	registryinternalclient "tkestack.io/tke/api/client/clientset/internalversion/typed/registry/internalversion"
 	platformversionedclient "tkestack.io/tke/api/client/clientset/versioned/typed/platform/v1"
 	"tkestack.io/tke/api/registry"
-	helmaction "tkestack.io/tke/pkg/application/helm/action"
-	applicationutil "tkestack.io/tke/pkg/application/util"
-	"tkestack.io/tke/pkg/chart/config"
-	harborHandler "tkestack.io/tke/pkg/chart/harbor/handler"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
 	registryutil "tkestack.io/tke/pkg/chart/util"
 	authorizationutil "tkestack.io/tke/pkg/chart/util/authorization"
-	"tkestack.io/tke/pkg/chart/util/chartpath"
 	"tkestack.io/tke/pkg/chart/util/sort"
+	harborHandler "tkestack.io/tke/pkg/registry/harbor/handler"
+	helm "tkestack.io/tke/pkg/registry/harbor/helmClient"
 	"tkestack.io/tke/pkg/util/log"
 )
 
@@ -58,7 +53,6 @@ type VersionREST struct {
 	store          ChartStorage
 	platformClient platformversionedclient.PlatformV1Interface
 	registryClient *registryinternalclient.RegistryClient
-	chartconfig    *chartconfig.chartconfiguration
 	externalScheme string
 	externalHost   string
 	externalPort   int
@@ -76,7 +70,6 @@ func NewVersionREST(
 	store ChartStorage,
 	platformClient platformversionedclient.PlatformV1Interface,
 	registryClient *registryinternalclient.RegistryClient,
-	chartconfig *chartconfig.chartconfiguration,
 	externalScheme string,
 	externalHost string,
 	externalPort int,
@@ -88,7 +81,6 @@ func NewVersionREST(
 		store:          store,
 		platformClient: platformClient,
 		registryClient: registryClient,
-		chartconfig:    chartconfig,
 		externalScheme: externalScheme,
 		externalHost:   externalHost,
 		externalPort:   externalPort,
@@ -136,10 +128,10 @@ func (r *VersionREST) Connect(ctx context.Context, chartName string, opts runtim
 			log.Debug("version is empty, will use latest version")
 			// return nil, errors.NewBadRequest("version is required")
 			var v1chart = &chartv1.Chart{}
-			err := chartv1.Convert_registry_Chart_To_v1_Chart(chart, v1chart, nil)
-			if err != nil {
-				return nil, errors.NewInternalError(err)
-			}
+			// err := chartv1.Convert_registry_Chart_To_v1_Chart(chart, v1chart, nil)
+			// if err != nil {
+			// 	return nil, errors.NewInternalError(err)
+			// }
 			sorted := sort.ByChartVersion(v1chart.Status.Versions)
 			latestChartVersion = sorted[0].Version
 		}
@@ -166,8 +158,7 @@ func (r *VersionREST) Connect(ctx context.Context, chartName string, opts runtim
 		externalPort:   r.externalPort,
 		externalCAFile: r.externalCAFile,
 
-		chartconfig: r.chartconfig,
-		authorizer:  r.authorizer,
+		authorizer: r.authorizer,
 		helmOption: helmOption{
 			cluster:        proxyOpts.Cluster,
 			namespace:      proxyOpts.Namespace,
@@ -189,8 +180,7 @@ type versionProxyHandler struct {
 	externalPort   int
 	externalCAFile string
 
-	chartconfig *chartconfig.chartconfiguration
-	authorizer  authorizer.Authorizer
+	authorizer authorizer.Authorizer
 
 	helmOption     helmOption
 	helmClient     *helm.APIClient
@@ -224,93 +214,93 @@ func (h *versionProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request
 
 // Get chart version info
 func (h *versionProxyHandler) ServeGetVersion(w http.ResponseWriter, req *http.Request) {
-	client, err := applicationutil.NewHelmClient(req.Context(), h.helmOption.platformClient, h.helmOption.cluster, h.helmOption.namespace)
-	if err != nil {
-		responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
-		return
-	}
+	// client, err := applicationutil.NewHelmClient(req.Context(), h.helmOption.platformClient, h.helmOption.cluster, h.helmOption.namespace)
+	// if err != nil {
+	// 	responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
+	// 	return
+	// }
 
-	host := h.externalHost
-	if h.externalPort > 0 {
-		host = host + ":" + strconv.Itoa(h.externalPort)
-	}
+	// host := h.externalHost
+	// if h.externalPort > 0 {
+	// 	host = host + ":" + strconv.Itoa(h.externalPort)
+	// }
 
-	chartVersion := h.chartVersion
-	if chartVersion == "" {
-		chartVersion = h.latestChartVersion
-	}
-	if chartVersion == "" {
-		responsewriters.WriteRawJSON(http.StatusBadRequest, "version is required", w)
-		return
-	}
+	// chartVersion := h.chartVersion
+	// if chartVersion == "" {
+	// 	chartVersion = h.latestChartVersion
+	// }
+	// if chartVersion == "" {
+	// 	responsewriters.WriteRawJSON(http.StatusBadRequest, "version is required", w)
+	// 	return
+	// }
 
-	var repo config.RepoConfiguration = config.RepoConfiguration{
-		Scheme:        h.externalScheme,
-		DomainSuffix:  host,
-		CaFile:        h.externalCAFile,
-		Admin:         h.chartconfig.Security.AdminUsername,
-		AdminPassword: h.chartconfig.Security.AdminPassword,
-	}
-	chartPathBasicOptions, err := chartpath.BuildChartPathBasicOptions(repo, *h.chartGroup)
-	if err != nil {
-		responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
-		return
-	}
-	chartPathBasicOptions.Chart = h.chart.Spec.Name
-	chartPathBasicOptions.Version = chartVersion
+	// var repo config.RepoConfiguration = config.RepoConfiguration{
+	// 	Scheme:        h.externalScheme,
+	// 	DomainSuffix:  host,
+	// 	CaFile:        h.externalCAFile,
+	// 	Admin:         h.chartconfig.Security.AdminUsername,
+	// 	AdminPassword: h.chartconfig.Security.AdminPassword,
+	// }
+	// chartPathBasicOptions, err := chartpath.BuildChartPathBasicOptions(repo, *h.chartGroup)
+	// if err != nil {
+	// 	responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
+	// 	return
+	// }
+	// chartPathBasicOptions.Chart = h.chart.Spec.Name
+	// chartPathBasicOptions.Version = chartVersion
 
-	cpopt := chartPathBasicOptions
-	destfile, err := client.Pull(&helmaction.PullOptions{
-		ChartPathOptions: cpopt,
-	})
-	if err != nil {
-		responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
-		return
-	}
+	// cpopt := chartPathBasicOptions
+	// destfile, err := client.Pull(&helmaction.PullOptions{
+	// 	ChartPathOptions: cpopt,
+	// })
+	// if err != nil {
+	// 	responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
+	// 	return
+	// }
 
-	cpopt.ExistedFile = destfile
-	show, err := client.Show(&helmaction.ShowOptions{
-		ChartPathOptions: cpopt,
-	})
-	if err != nil {
-		responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
-		return
-	}
-	files := make(map[string]string)
-	if show.Chart != nil {
-		for _, v := range show.Chart.Raw {
-			files[v.Name] = string(v.Data)
-		}
-	}
+	// cpopt.ExistedFile = destfile
+	// show, err := client.Show(&helmaction.ShowOptions{
+	// 	ChartPathOptions: cpopt,
+	// })
+	// if err != nil {
+	// 	responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
+	// 	return
+	// }
+	// files := make(map[string]string)
+	// if show.Chart != nil {
+	// 	for _, v := range show.Chart.Raw {
+	// 		files[v.Name] = string(v.Data)
+	// 	}
+	// }
 
-	var v1ChartSpec = &chartv1.ChartSpec{}
-	err = chartv1.Convert_registry_ChartSpec_To_v1_ChartSpec(&h.chart.Spec, v1ChartSpec, nil)
-	if err != nil {
-		responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
-		return
-	}
+	//var v1ChartSpec = &chartv1.ChartSpec{}
+	// err = chartv1.Convert_registry_ChartSpec_To_v1_ChartSpec(&h.chart.Spec, v1ChartSpec, nil)
+	// if err != nil {
+	// 	responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
+	// 	return
+	// }
 
-	var v1ChartVersion = &chartv1.ChartVersion{}
-	version := getTargetVersion(h.chart, chartVersion)
-	err = chartv1.Convert_registry_ChartVersion_To_v1_ChartVersion(&version, v1ChartVersion, nil)
-	if err != nil {
-		responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
-		return
-	}
-	chartInfo := &chartv1.ChartInfo{
-		ObjectMeta: metav1.ObjectMeta{
-			Namespace: h.chart.Namespace,
-			Name:      h.chart.Name,
-		},
-		Spec: chartv1.ChartInfoSpec{
-			Values:       show.Values,
-			Readme:       show.Readme,
-			RawFiles:     files,
-			ChartSpec:    *v1ChartSpec,
-			ChartVersion: *v1ChartVersion,
-		},
-	}
-	responsewriters.WriteRawJSON(http.StatusOK, chartInfo, w)
+	//var v1ChartVersion = &chartv1.ChartVersion{}
+	//version := getTargetVersion(h.chart, chartVersion)
+	// err = chartv1.Convert_registry_ChartVersion_To_v1_ChartVersion(&version, v1ChartVersion, nil)
+	// if err != nil {
+	// 	responsewriters.WriteRawJSON(http.StatusInternalServerError, errors.NewInternalError(err), w)
+	// 	return
+	// }
+	// chartInfo := &chartv1.ChartInfo{
+	// 	ObjectMeta: metav1.ObjectMeta{
+	// 		Namespace: h.chart.Namespace,
+	// 		Name:      h.chart.Name,
+	// 	},
+	// 	Spec: chartv1.ChartInfoSpec{
+	// 		Values:       show.Values,
+	// 		Readme:       show.Readme,
+	// 		RawFiles:     files,
+	// 		ChartSpec:    *v1ChartSpec,
+	// 		ChartVersion: *v1ChartVersion,
+	// 	},
+	// }
+	responsewriters.WriteRawJSON(http.StatusOK, &chartv1.ChartInfo{}, w)
 }
 
 // Delete chart version
@@ -338,7 +328,7 @@ func (h *versionProxyHandler) ServeDeleteVersion(w http.ResponseWriter, req *htt
 		newReq := req.WithContext(context.Background())
 		newReq.Header = netutil.CloneHeader(req.Header)
 		newReq.URL = loc
-		newReq.SetBasicAuth(h.chartconfig.Security.AdminUsername, h.chartconfig.Security.AdminPassword)
+		//newReq.SetBasicAuth(h.chartconfig.Security.AdminUsername, h.chartconfig.Security.AdminPassword)
 		transport := &http.Transport{
 			TLSClientConfig: &tls.Config{
 				InsecureSkipVerify: true,
@@ -380,10 +370,10 @@ func (h *versionProxyHandler) ServeDeleteVersion(w http.ResponseWriter, req *htt
 
 func (h *versionProxyHandler) check(w http.ResponseWriter, req *http.Request) error {
 	var cg = &chartv1.ChartGroup{}
-	err := chartv1.Convert_registry_ChartGroup_To_v1_ChartGroup(h.chartGroup, cg, nil)
-	if err != nil {
-		return err
-	}
+	// err := chartv1.Convert_registry_ChartGroup_To_v1_ChartGroup(h.chartGroup, cg, nil)
+	// if err != nil {
+	// 	return err
+	// }
 	u, exist := genericapirequest.UserFrom(req.Context())
 	if !exist || u == nil {
 		return fmt.Errorf("empty user info, not authenticated")

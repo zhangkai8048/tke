@@ -28,7 +28,7 @@ import (
 	platformversionedclient "tkestack.io/tke/api/client/clientset/versioned/typed/platform/v1"
 	versionedinformers "tkestack.io/tke/api/client/informers/externalversions"
 	"tkestack.io/tke/pkg/apiserver/storage"
-	"tkestack.io/tke/pkg/chart/chartmuseum"
+
 	registryrest "tkestack.io/tke/pkg/chart/registry/rest"
 	"tkestack.io/tke/pkg/util/log"
 )
@@ -96,16 +96,16 @@ func (c completedConfig) New(delegationTarget genericapiserver.DelegationTarget)
 		GenericAPIServer: s,
 	}
 
-	chartmuseumOpts := &chartmuseum.Options{
-		LoopbackClientConfig: c.GenericConfig.LoopbackClientConfig,
-		TokenReviewCAFile:    c.ExtraConfig.OIDCCAFile,
-		TokenReviewURL:       c.ExtraConfig.OIDCTokenReviewPath,
-		ExternalScheme:       c.ExtraConfig.ExternalScheme,
-		Authorizer:           c.GenericConfig.Authorization.Authorizer,
-	}
-	if err := chartmuseum.RegisterRoute(s.Handler.NonGoRestfulMux, chartmuseumOpts); err != nil {
-		return nil, err
-	}
+	// chartmuseumOpts := &chartmuseum.Options{
+	// 	LoopbackClientConfig: c.GenericConfig.LoopbackClientConfig,
+	// 	TokenReviewCAFile:    c.ExtraConfig.OIDCCAFile,
+	// 	TokenReviewURL:       c.ExtraConfig.OIDCTokenReviewPath,
+	// 	ExternalScheme:       c.ExtraConfig.ExternalScheme,
+	// 	Authorizer:           c.GenericConfig.Authorization.Authorizer,
+	// }
+	// if err := chartmuseum.RegisterRoute(s.Handler.NonGoRestfulMux, chartmuseumOpts); err != nil {
+	// 	return nil, err
+	// }
 
 	// The order here is preserved in discovery.
 	restStorageProviders := []storage.RESTStorageProvider{

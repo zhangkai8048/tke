@@ -42,21 +42,6 @@ message Chart {
   optional ChartStatus status = 3;
 }
 
-// ChartConfiguration contains the configuration for the ChartGroup
-message ChartConfiguration {
-  optional Security security = 1;
-
-  // +optional
-  optional string defaultTenant = 2;
-
-  // +optional
-  optional string domainSuffix = 3;
-
-  optional bool harborEnabled = 4;
-
-  optional string harborCAFile = 5;
-}
-
 // ChartGroup is a chart container in chartmuseum registry.
 message ChartGroup {
   // +optional
@@ -280,23 +265,5 @@ message ConfigMapList {
 
   // Items is the list of ConfigMaps.
   repeated ConfigMap items = 2;
-}
-
-message Security {
-  optional string tokenPrivateKeyFile = 1;
-
-  optional string tokenPublicKeyFile = 2;
-
-  // +optional
-  optional int64 tokenExpiredHours = 3;
-
-  optional string hTTPSecret = 4;
-
-  optional string adminUsername = 5;
-
-  optional string adminPassword = 6;
-
-  // +optional
-  optional bool enableAnonymous = 7;
 }
 

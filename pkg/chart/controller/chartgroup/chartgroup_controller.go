@@ -39,11 +39,10 @@ import (
 	chartv1informer "tkestack.io/tke/api/client/informers/externalversions/chart/v1"
 	chartv1lister "tkestack.io/tke/api/client/listers/chart/v1"
 	"tkestack.io/tke/pkg/chart/controller/chartgroup/deletion"
-	helm "tkestack.io/tke/pkg/chart/harbor/helmClient"
 	controllerutil "tkestack.io/tke/pkg/controller"
+	helm "tkestack.io/tke/pkg/registry/harbor/helmClient"
 	"tkestack.io/tke/pkg/util"
 	"tkestack.io/tke/pkg/util/log"
-	"tkestack.io/tke/pkg/util/metrics"
 )
 
 const (
@@ -88,12 +87,12 @@ func NewController(businessClient businessversionedclient.BusinessV1Interface,
 		chartGroupResourcesDeleter: deletion.NewChartGroupResourcesDeleter(businessClient, client.ChartV1(), finalizerToken, true, helmClient),
 	}
 
-	if client != nil &&
-		client.ChartV1().RESTClient() != nil &&
-		!reflect.ValueOf(client.ChartV1().RESTClient()).IsNil() &&
-		client.ChartV1().RESTClient().GetRateLimiter() != nil {
-		_ = metrics.RegisterMetricAndTrackRateLimiterUsage("chartGroup_controller", client.ChartV1().RESTClient().GetRateLimiter())
-	}
+	// if client != nil &&
+	// 	client.ChartV1().RESTClient() != nil &&
+	// 	!reflect.ValueOf(client.ChartV1().RESTClient()).IsNil() &&
+	// 	client.ChartV1().RESTClient().GetRateLimiter() != nil {
+	// 	_ = metrics.RegisterMetricAndTrackRateLimiterUsage("chartGroup_controller", client.ChartV1().RESTClient().GetRateLimiter())
+	// }
 
 	chartGroupInformer.Informer().AddEventHandlerWithResyncPeriod(
 		cache.ResourceEventHandlerFuncs{
