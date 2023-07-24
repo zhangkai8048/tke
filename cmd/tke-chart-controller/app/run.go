@@ -35,7 +35,7 @@ import (
 
 // Run runs the specified registry controller manager. This should never exit.
 func Run(cfg *config.Config, stopCh <-chan struct{}) error {
-	log.Info("Starting Tencent Kubernetes Engine registry controller manager")
+	log.Info("Starting Tencent Kubernetes Engine chart controller manager")
 
 	// Setup any healthz checks we will want to use.
 	var checks []healthz.HealthChecker
@@ -55,7 +55,7 @@ func Run(cfg *config.Config, stopCh <-chan struct{}) error {
 
 	run := func(ctx context.Context) {
 		rootClientBuilder := controller.SimpleControllerClientBuilder{
-			ClientConfig: cfg.RegistryAPIServerClientConfig,
+			ClientConfig: cfg.ChartAPIServerClientConfig,
 		}
 
 		var authClientBuilder controller.ClientBuilder = nil
@@ -84,6 +84,8 @@ func Run(cfg *config.Config, stopCh <-chan struct{}) error {
 	}
 
 	ctx, cancel := context.WithCancel(context.TODO())
+	log.Infof("get context  %v", ctx)
+	log.FromContext(ctx)
 	go func() {
 		<-stopCh
 		cancel()

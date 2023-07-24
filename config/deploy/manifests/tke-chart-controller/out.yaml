@@ -39,7 +39,8 @@ spec:
             weight: 1
       containers:
         - name: tke-chart-controller
-          image: tkestack/tke-chart-controller-amd64:d3d6bda7.dirty
+          image: registry.cn-qingdao.aliyuncs.com/zhangkai8048/tke-chart-controller-amd64:dev
+          imagePullPolicy: Always
           args:
             - -C=/app/conf/tke-chart-controller.toml
           volumeMounts:
@@ -48,10 +49,10 @@ spec:
             - name: tke-chart-controller-volume
               mountPath: /app/conf
           ports:
-            - containerPort: 9998
+            - containerPort: 9444
           livenessProbe:
             httpGet:
-              port: 9998
+              port: 9444
               path: /healthz
               scheme: HTTPS
             initialDelaySeconds: 15
@@ -78,6 +79,7 @@ metadata:
   namespace: tke
 data:
   tke-chart-controller.toml: |
+
     [secure_serving]
     tls_cert_file = "/app/certs/server.crt"
     tls_private_key_file = "/app/certs/server.key"
@@ -97,9 +99,6 @@ data:
       [client.auth]
       api_server = "https://tke-auth-api"
       api_server_client_config = "/app/conf/tke-auth-config.yaml"
-    [features]
-    domain = "RegistryDomain"
-    namespace = "RegistryNamespace"
 
 
   tke-platform-config.yaml: |

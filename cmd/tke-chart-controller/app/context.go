@@ -122,19 +122,19 @@ func CreateControllerContext(cfg *config.Config, rootClientBuilder, authClientBu
 	}
 
 	if cfg.BusinessAPIServerClientConfig != nil {
-		_, err := versionedclientset.NewForConfig(rest.AddUserAgent(cfg.BusinessAPIServerClientConfig, "tke-chart-controller"))
+		businessClient, err := versionedclientset.NewForConfig(rest.AddUserAgent(cfg.BusinessAPIServerClientConfig, "tke-chart-controller"))
 		if err != nil {
 			return ControllerContext{}, fmt.Errorf("failed to create the business client: %v", err)
 		}
-		//ctx.BusinessClient = businessClient.BusinessV1()
+		ctx.BusinessClient = businessClient.BusinessV1()
 	}
 
 	if cfg.AuthAPIServerClientConfig != nil {
-		_, err := versionedclientset.NewForConfig(rest.AddUserAgent(cfg.AuthAPIServerClientConfig, "tke-chart-controller"))
+		authClient, err := versionedclientset.NewForConfig(rest.AddUserAgent(cfg.AuthAPIServerClientConfig, "tke-chart-controller"))
 		if err != nil {
 			return ControllerContext{}, fmt.Errorf("failed to create the auth client: %v", err)
 		}
-		//ctx.AuthClient = authClient.AuthV1()
+		ctx.AuthClient = authClient.AuthV1()
 	}
 	if authClientBuilder != nil {
 		authAvailableResources, err := controller.GetAvailableResources(authClientBuilder)

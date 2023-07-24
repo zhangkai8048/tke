@@ -35,7 +35,7 @@ warehouse service implemented in accordance with http `
 // NewApp creates a App object with default parameters.
 func NewApp(basename string) *app.App {
 	opts := options.NewOptions(basename)
-	application := app.NewApp("Tencent Kubernetes Engine Registry API Server", basename,
+	application := app.NewApp("Tencent Kubernetes Engine Chart API Server", basename,
 		app.WithOptions(opts),
 		app.WithDescription(commandDesc),
 		app.WithRunFunc(run(opts)),
@@ -55,7 +55,7 @@ func run(opts *options.Options) app.RunFunc {
 		cfg, err := config.CreateConfigFromOptions(basename, opts)
 		if err != nil {
 			return err
-		}  
+		}
 
 		stopCh := commonapiserver.SetupSignalHandler()
 		return Run(cfg, stopCh)

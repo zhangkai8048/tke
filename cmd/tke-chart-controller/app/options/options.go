@@ -43,7 +43,6 @@ type Options struct {
 	// The Registry will load its initial configuration from this file.
 	// The path may be absolute or relative; relative paths are under the Registry's current working directory.
 	ChartAPIClient *controlleroptions.APIServerClientOptions
-	RegistryConfig string
 }
 
 // NewOptions creates a new Options with a default config.
@@ -51,11 +50,12 @@ func NewOptions(serverName string, allControllers []string, disabledByDefaultCon
 	return &Options{
 		Log:               log.NewOptions(),
 		Debug:             apiserveroptions.NewDebugOptions(),
-		SecureServing:     apiserveroptions.NewSecureServingOptions(serverName, 9454),
+		SecureServing:     apiserveroptions.NewSecureServingOptions(serverName, 9444),
 		Component:         controlleroptions.NewComponentOptions(allControllers, disabledByDefaultControllers),
 		RegistryAPIClient: controlleroptions.NewAPIServerClientOptions("registry", true),
 		BusinessAPIClient: controlleroptions.NewAPIServerClientOptions("business", false),
 		AuthAPIClient:     controlleroptions.NewAPIServerClientOptions("auth", false),
+		ChartAPIClient:    controlleroptions.NewAPIServerClientOptions("chart", false),
 	}
 }
 
@@ -68,6 +68,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	o.RegistryAPIClient.AddFlags(fs)
 	o.BusinessAPIClient.AddFlags(fs)
 	o.AuthAPIClient.AddFlags(fs)
+	o.ChartAPIClient.AddFlags(fs)
 }
 
 // ApplyFlags parsing parameters from the command line or configuration file
@@ -82,6 +83,7 @@ func (o *Options) ApplyFlags() []error {
 	errs = append(errs, o.RegistryAPIClient.ApplyFlags()...)
 	errs = append(errs, o.BusinessAPIClient.ApplyFlags()...)
 	errs = append(errs, o.AuthAPIClient.ApplyFlags()...)
+	errs = append(errs, o.ChartAPIClient.ApplyFlags()...)
 
 	return errs
 }

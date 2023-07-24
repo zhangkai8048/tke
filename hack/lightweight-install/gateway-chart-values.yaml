@@ -1,0 +1,6 @@
+etcd:
+  host: https://172.17.0.2:2379
+image: tkestack/tke-gateway-amd64:v1.9.2.1.g30e412e9.dirty
+oIDCClientSecret: 2T0UJsxRB5Vn0Y8zvJb0Ydp6sGG
+selfSigned: "true"
+enableAuth: "true"

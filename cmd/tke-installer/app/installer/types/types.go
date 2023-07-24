@@ -59,6 +59,17 @@ type Config struct {
 	SkipSteps     []string        `json:"skipSteps,omitempty"`
 	ExpansionApps []*ExpansionApp `json:"expansionApps,omitempty"`
 	PlatformApps  []*PlatformApp  `json:"platformApps,omitempty"`
+	ChartRepo     *ChartRepo      `json:"chartRepo,omitempty"`
+}
+
+type ChartRepo struct {
+	Domain        string              `json:"domain" validate:"hostname_rfc1123"`
+	HarborEnabled bool                `json:"harborEnabled"`
+	HarborCAFile  string              `json:"harborCAFile"`
+	Namespace     string              `json:"namespace"`
+	Username      string              `json:"username"`
+	Password      []byte              `json:"password"`
+	Storage       *TKERegistryStorage `json:"storage"`
 }
 
 type Basic struct {

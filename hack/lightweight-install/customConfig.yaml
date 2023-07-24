@@ -1,9 +1,9 @@
 # 必填，etcd访问地址，形式如https://172.19.0.2:2379
 etcd:
-  host: https://172.18.0.2:2379 
+  host: https://172.17.0.2:2379 
 # 必填，服务器内网ip，数组形式
 serverIPs:
-  - 172.18.0.2
+  - 172.17.0.2
 # 必填，公网可访问的ip地址以及要使用的域名，数组形式
 dnsNames:
   - tke.gateway
@@ -18,10 +18,10 @@ tke-auth:
     # 必填
     replicas: 1
     # 必填
-    image: tkestack/tke-auth-api-amd64:74592a3bceb5bebca602bea21aaebf78007a3bb2
+    image: tkestack/tke-auth-api-amd64:v1.9.2.1.g30e412e9.dirty
     # 必填，数组形式，auth的重定向访问地址，包括集群服务器ip地址（必填）、tke-gateway的域名（可选）、集群高可用的VIP地址（可选，有的话需要填写）和集群的公共可访问域名（可选，，有的话需要填写）
     redirectHosts: 
-      - 172.18.0.2
+      - 172.17.0.2
     enableAudit: 
     # tke-auth-api组件在node上的对外暴露端口，默认31138
     nodePort: 
@@ -35,21 +35,21 @@ tke-auth:
     # 必填
     replicas: 1
     # 必填
-    image: tkestack/tke-auth-controller-amd64:74592a3bceb5bebca602bea21aaebf78007a3bb2
+    image: tkestack/tke-auth-controller-amd64:v1.9.2.1.g30e412e9.dirty
     # 控制台登陆的用户名，默认为 admin
     adminUsername: 
     # 控制台登陆的密码，默认自动生成
     adminPassword: 
 tke-platform:
   # 必填 VIP，或者公网可访问的集群IP
-  publicIP: 172.18.0.2
+  publicIP: 172.17.0.2
   metricsServerImage: tkestack/metrics-server:v0.3.6
   addonResizerImage: tkestack/addon-resizer:1.8.11
   api:
     # 必填
     replicas: 1
     # 必填
-    image: tkestack/tke-platform-api-amd64:bc48bed59bff2022d87db5e1484481715357ee7c
+    image: tkestack/tke-platform-api-amd64:v1.9.2.1.g30e412e9.dirty
     enableAuth: true
     enableAudit: 
     # OIDC认证方式客户端id，默认为default
@@ -64,7 +64,7 @@ tke-platform:
     # 必填
     providerResImage: tkestack/provider-res-amd64:v1.21.4-1
     # 必填
-    image: tkestack/tke-platform-controller-amd64:bc48bed59bff2022d87db5e1484481715357ee7c
+    image: tkestack/tke-platform-controller-amd64:v1.9.2.1.g30e412e9.dirty
     # 默认为docker.io
     registryDomain:
     # 默认为tkestack
@@ -75,7 +75,7 @@ tke-platform:
     monitorStorageAddresses:
 tke-gateway:
   # 必填
-  image: tkestack/tke-gateway-amd64:bc48bed59bff2022d87db5e1484481715357ee7c
+  image: tkestack/tke-gateway-amd64:v1.9.2.1.g30e412e9.dirty
   # 默认为docker.io
   registryDomainSuffix:
   # tke集群的租户id，默认default

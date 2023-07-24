@@ -57,9 +57,9 @@ type Options struct {
 func NewOptions(serverName string) *Options {
 	return &Options{
 		Log:               log.NewOptions(),
-		SecureServing:     apiserveroptions.NewSecureServingOptions(serverName, 9453),
+		SecureServing:     apiserveroptions.NewSecureServingOptions(serverName, 9443),
 		Debug:             apiserveroptions.NewDebugOptions(),
-		ETCD:              storageoptions.NewETCDStorageOptions("/tke/registry"),
+		ETCD:              storageoptions.NewETCDStorageOptions("/tke/chart"),
 		Generic:           apiserveroptions.NewGenericOptions(),
 		Authentication:    apiserveroptions.NewAuthenticationWithAPIOptions(),
 		Authorization:     apiserveroptions.NewAuthorizationOptions(),

@@ -448,6 +448,19 @@ func (t *TKE) initSteps() {
 
 	// others
 
+	if t.Para.Config.ChartRepo != nil {
+		t.steps = append(t.steps, []types.Handler{
+			{
+				Name: "Install tke-chart-api",
+				Func: t.installTKEChartAPI,
+			},
+			{
+				Name: "Install tke-chart-controller",
+				Func: t.installTKEChartController,
+			},
+		}...)
+	}
+
 	// Add more tke component before THIS!!!
 	t.steps = append(t.steps, []types.Handler{
 		{
@@ -2971,4 +2984,49 @@ func (t *TKE) getLocalInfluxdbAddress() string {
 		influxdbAddress = fmt.Sprintf("http://%s:30086", vip) // influxdb svc must be set as NodePort type, and the nodePort is 30086
 	}
 	return influxdbAddress
+}
+
+func (t *TKE) installTKEChartAPI(ctx context.Context) error {
+	options := map[string]interface{}{
+		"Replicas":       t.Config.Replicas,
+		"Image":          images.Get().TKEBusinessAPI.FullName(),
+		"TenantID":       t.Para.Config.Auth.TKEAuth.TenantID,
+		"Username":       t.Para.Config.Auth.TKEAuth.Username,
+		"EnableAuth":     t.Para.Config.Auth.TKEAuth != nil,
+		"EnableRegistry": t.Para.Config.Registry.TKERegistry != nil,
+	}
+
+	err := apiclient.CreateResourceWithDir(ctx, t.globalClient, "manifests/tke-chart-api/*.yaml", options)
+	if err != nil {
+		return err
+	}
+
+	return wait.PollImmediate(5*time.Second, 10*time.Minute, func() (bool, error) {
+		ok, err := apiclient.CheckDeployment(ctx, t.globalClient, t.namespace, "tke-chart-api")
+		if err != nil {
+			return false, nil
+		}
+		return ok, nil
+	})
+}
+
+func (t *TKE) installTKEChartController(ctx context.Context) error {
+	err := apiclient.CreateResourceWithDir(ctx, t.globalClient, "manifests/tke-chart-controller/*.yaml",
+		map[string]interface{}{
+			"Replicas":       t.Config.Replicas,
+			"Image":          images.Get().TKEBusinessController.FullName(),
+			"EnableAuth":     t.Para.Config.Auth.TKEAuth != nil,
+			"EnableRegistry": t.Para.Config.Registry.TKERegistry != nil,
+		})
+	if err != nil {
+		return err
+	}
+
+	return wait.PollImmediate(5*time.Second, 10*time.Minute, func() (bool, error) {
+		ok, err := apiclient.CheckDeployment(ctx, t.globalClient, t.namespace, "tke-chart-controller")
+		if err != nil {
+			return false, nil
+		}
+		return ok, nil
+	})
 }

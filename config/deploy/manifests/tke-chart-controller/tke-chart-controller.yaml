@@ -48,10 +48,10 @@ spec:
             - name: tke-chart-controller-volume
               mountPath: /app/conf
           ports:
-            - containerPort: 9998
+            - containerPort: 9444
           livenessProbe:
             httpGet:
-              port: 9998
+              port: 9444
               path: /healthz
               scheme: HTTPS
             initialDelaySeconds: 15
@@ -78,6 +78,7 @@ metadata:
   namespace: tke
 data:
   tke-chart-controller.toml: |
+
     [secure_serving]
     tls_cert_file = "/app/certs/server.crt"
     tls_private_key_file = "/app/certs/server.key"
@@ -103,9 +104,6 @@ data:
       api_server = "https://tke-auth-api"
       api_server_client_config = "/app/conf/tke-auth-config.yaml"
 {{- end }}
-    [features]
-    domain = "{{ .RegistryDomain }}"
-    namespace = "{{ .RegistryNamespace }}"
 
 
   tke-platform-config.yaml: |

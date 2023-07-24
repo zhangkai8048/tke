@@ -25,7 +25,7 @@ import (
 
 // Run runs the specified TKE notify apiserver. This should never exit.
 func Run(cfg *config.Config, stopCh <-chan struct{}) error {
-	log.Info("Starting Tencent Kubernetes Engine Registry API server")
+	log.Info("Starting Tencent Kubernetes Engine Chart API server")
 
 	server, err := CreateServerChain(cfg)
 	if err != nil {

@@ -28,7 +28,7 @@ git clone https://github.com/tkestack/tke.git
 如果用户本地没有 K8s 集群，可通过 kind 进行创建。由于 kind 创建的集群实际运行在镜像容器中，为了确保 TKEStack 核心组件的端口能够从容器外部正常访问，切换到 TKEStack 代码的 `hack/lightweight-install/` 目录，执行如下命令创建集群：
 
 ```sh
-kind create cluster --config kindConfig.yaml --name {your cluster name} 
+kind create cluster --config kindConfig.yaml --name tke
 ```
 
 ### 3、创建指定 namespace
@@ -37,6 +37,9 @@ tke-auth、tke-platform、tke-gateway 三个核心组件需要运行在指定的
 
 ```sh
 kubectl create namespace tke
+sudo rm -rf   /etc/kubernetes/
+sudo docker cp  tke-control-plane:/etc/kubernetes /etc/
+sudo chmod 775 -R /etc/kubernetes/
 ```
 
 ### 4、安装 chart
@@ -162,6 +165,10 @@ tke-gateway:
 会在同级目录生成 `auth-chart-values.yaml`、`platform-chart-values.yaml`、`gateway-chart-values.yaml` 三个 yaml 文件，分别对应三个 chart（tke-auth、tke-platform、tke-gateway）在安装时需要的 `values.yaml` 文件
 
 在当前 `hack/lightweight-install/` 目录下进行三个核心组件的安装：
+```
+for i in $(cat customConfig.yaml |grep image: |awk '{print $2}');do kind load docker-image  $i --name tke;done
+
+```
 
 ```sh
 # tke-auth 的安装
@@ -193,12 +200,13 @@ chart 安装完成后，可以查询到以下信息，如图所示：
 在集群对应的目录 `/etc/kubernetes/pki/` 下新建文件 `tke-authz-webhook.yaml`，文件内容如下（其中 `cluster.server` 参数中的 IP 地址需要修改为 master 的 IP 地址）：
 
 ```yaml
+cat > tke-authz-webhook.yaml << EOF
 apiVersion: v1
 kind: Config
 clusters:
   - name: tke
     cluster:
-      server: https://172.19.0.2:31138/auth/authz
+      server: https://172.17.0.2:31138/auth/authz
       insecure-skip-tls-verify: true
 users:
   - name: admin-cert
@@ -211,6 +219,14 @@ contexts:
     cluster: tke
     user: admin-cert
   name: tke
+EOF  
+```
+```
+sudo mv tke-authz-webhook.yaml /etc/kubernetes/
+sudo docker cp  /etc/kubernetes tke-control-plane:/etc/
+
+sudo vim /etc/kubernetes/manifests/kube-apiserver.yaml 
+docker restart tke-control-plane
 ```
 
 将二进制执行文件 `gen` 生成的 `webhook.crt` 和 `webhook.key`（位置在 TKEStack 代码下的 `hack/lightweight-install/data/` 目录）复制到集群的对应目录 `/etc/kubernetes/pki/` 下
@@ -250,6 +266,10 @@ data:
   k8sValidVersions: '["1.21.4-tke.1","1.20.4-tke.1"]'
 ```
 
+```
+helm ls | awk '{if(NR>1)print$1}' | xargs helm uninstall 
+kind delete cluster --name=tke
+```
 ## 总结
 
 - 本文介绍了如何基于 TKEStack 最新的 v1.9.0 release 版本在已有的 K8s 集群上轻量化安装 TKEStack，并以此集成 TKEStack 的用户管理、集群管理、控制台访问等核心功能。

@@ -36,7 +36,7 @@ const commandDesc = `The chart controller manager is a daemon that embeds the co
 // NewApp creates a App object with default parameters.
 func NewApp(basename string) *app.App {
 	opts := options.NewOptions(basename, KnownControllers(), ControllersDisabledByDefault.List())
-	application := app.NewApp("Tencent Kubernetes Engine Registry Controller Manager",
+	application := app.NewApp("Tencent Kubernetes Engine Chart Controller Manager",
 		basename,
 		app.WithOptions(opts),
 		app.WithDescription(commandDesc),

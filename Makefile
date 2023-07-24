@@ -63,8 +63,19 @@ export USAGE_OPTIONS
 debug:
 #	@$(MAKE) gen.api.debug
 #	@$(MAKE) gen.openapi
-	make build BINS=tke-chart-controller
+#	make build BINS=tke-chart-controller tke-chart-api
+	make image IMAGES=tke-chart-controller tke-chart-api
 
+COMPOMENT=tke-chart-controller
+ARCH=amd64
+#REGISTRY_PREFIX=registry.tke.com
+REGISTRY_PREFIX=registry.cn-qingdao.aliyuncs.com/zhangkai8048
+VERSION=v0.1.0
+export IMAGE=$(COMPOMENT)
+
+.PHONY: debug.image
+debug.image:
+	@$(MAKE) image.build.single
 
 ## gen: Generate codes for API definitions.
 .PHONY: gen
@@ -150,6 +161,8 @@ endif
 	make asset && make push.multiarch
 
 ## release: Release tke
+export DOCKER_PULL_CONFIG=" "
+export VERSION="V1.9.2"
 .PHONY: release
 release:
 	build/docker/tools/tke-installer/release.sh
